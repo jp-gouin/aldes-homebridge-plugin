@@ -16,47 +16,47 @@ export class AldesHomebridgePlatform implements DynamicPlatformPlugin {
 
   // this is used to track restored cached accessories
   public readonly accessories: PlatformAccessory[] = [];
-  public thermostats: ThermostatAccessory[] = []
+  public thermostats: ThermostatAccessory[] = [];
 
   public aldesAPI!: AldesAPI;
   public product!: Product;
 
   public modes = [{
-    name: "Off",
-    mode: "A"
+    name: 'Off',
+    mode: 'A',
   },
   {
-    name: "Heat Comfort",
-    mode: "B"
+    name: 'Heat Comfort',
+    mode: 'B',
   },
   {
-    name: "Heat Eco",
-    mode: "C"
+    name: 'Heat Eco',
+    mode: 'C',
   },
   {
-    name: "Heat Prog A",
-    mode: "D"
+    name: 'Heat Prog A',
+    mode: 'D',
   },
   {
-    name: "Heat Prog B",
-    mode: "E"
+    name: 'Heat Prog B',
+    mode: 'E',
   },
   {
-    name: "Cool Comfort",
-    mode: "F"
+    name: 'Cool Comfort',
+    mode: 'F',
   },
   {
-    name: "Cool Boost",
-    mode: "G"
+    name: 'Cool Boost',
+    mode: 'G',
   },
   {
-    name: "Cool Prog C",
-    mode: "H"
+    name: 'Cool Prog C',
+    mode: 'H',
   },
   {
-    name: "Cool Prog D",
-    mode: "I"
-  }]
+    name: 'Cool Prog D',
+    mode: 'I',
+  }];
 
   constructor(
     public readonly log: Logger,
@@ -72,11 +72,11 @@ export class AldesHomebridgePlatform implements DynamicPlatformPlugin {
     this.api.on('didFinishLaunching', () => {
       log.debug('Executed didFinishLaunching callback');
       // run the method to discover / register your devices as accessories
-      this.aldesAPI = new AldesAPI(log,config)
+      this.aldesAPI = new AldesAPI(log, config);
       this.aldesAPI.authenticate().then((d)=>{
         this.discoverDevices();
         this.refreshProduct();
-      })
+      });
     });
   }
 
@@ -93,10 +93,10 @@ export class AldesHomebridgePlatform implements DynamicPlatformPlugin {
 
   refreshProduct(){
     setInterval(() => {
-      this.log.info("Refresh Aldes product state")
+      this.log.info('Refresh Aldes product state');
       this.aldesAPI.fetchProducts().then((products)=>{
         for (const thermostat of products[0].indicator.thermostats){
-          for (let accessories of this.thermostats){
+          for (const accessories of this.thermostats){
             if (accessories.getThermostat().ThermostatId == thermostat.ThermostatId){
               accessories.setThermostat(thermostat);
             }
@@ -114,47 +114,12 @@ export class AldesHomebridgePlatform implements DynamicPlatformPlugin {
   discoverDevices() {
 
     this.aldesAPI.fetchProducts().then((products)=>{
-      this.product = products[0]; 
-      this.log.debug(JSON.stringify(this.aldesAPI.getProducts()))
-      
-       // Register all thermostats
-         // Register input source for the mode selector
-          const uuid = this.api.hap.uuid.generate('Aldes-Mode-group');
-
-          // see if an accessory with the same uuid has already been registered and restored from
-          // the cached devices we stored in the `configureAccessory` method above
-          const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
-          
-          if (existingAccessory) {
-            // the accessory already exists
-            this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
-            for(const mode of this.modes){
-              new ModeAccessorySwitch(this, existingAccessory,mode);
-            }
-            
-          }else{
-            // the accessory does not yet exist, so we need to create it
-            this.log.info('Adding new mode selector:', 'Aldes-Mode-group');
-
-            // create a new accessory
-            const accessory = new this.api.platformAccessory('Aldes-Mode-group', uuid);
-
-            for(const mode of this.modes){
-              new ModeAccessorySwitch(this, accessory,mode);
-            }
-            // link the accessory to your platform
-            this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-       }
-
-     
-
+      this.product = products[0];
+      this.log.debug(JSON.stringify(this.aldesAPI.getProducts()));
 
       // Register all thermostats
-      for (const thermostat of this.product.indicator.thermostats){
-        // generate a unique id for the accessory this should be generated from
-      // something globally unique, but constant, for example, the device serial
-      // number or MAC address
-      const uuid = this.api.hap.uuid.generate(thermostat.ThermostatId.toString());
+      // Register input source for the mode selector
+      const uuid = this.api.hap.uuid.generate('Aldes-Mode-group');
 
       // see if an accessory with the same uuid has already been registered and restored from
       // the cached devices we stored in the `configureAccessory` method above
@@ -163,38 +128,73 @@ export class AldesHomebridgePlatform implements DynamicPlatformPlugin {
       if (existingAccessory) {
         // the accessory already exists
         this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
+        for(const mode of this.modes){
+          new ModeAccessorySwitch(this, existingAccessory, mode);
+        }
 
-        // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
-        // existingAccessory.context.device = device;
-        // this.api.updatePlatformAccessories([existingAccessory]);
+      }else{
+        // the accessory does not yet exist, so we need to create it
+        this.log.info('Adding new mode selector:', 'Aldes-Mode-group');
 
-        // create the accessory handler for the restored accessory
-        // this is imported from `platformAccessory.ts`
-       let thermo =  new ThermostatAccessory(this, existingAccessory,thermostat);
-        this.thermostats.push(thermo)
+        // create a new accessory
+        const accessory = new this.api.platformAccessory('Aldes-Mode-group', uuid);
+
+        for(const mode of this.modes){
+          new ModeAccessorySwitch(this, accessory, mode);
+        }
+        // link the accessory to your platform
+        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+      }
+
+
+
+
+      // Register all thermostats
+      for (const thermostat of this.product.indicator.thermostats){
+        // generate a unique id for the accessory this should be generated from
+      // something globally unique, but constant, for example, the device serial
+      // number or MAC address
+        const uuid = this.api.hap.uuid.generate(thermostat.ThermostatId.toString());
+
+        // see if an accessory with the same uuid has already been registered and restored from
+        // the cached devices we stored in the `configureAccessory` method above
+        const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+
+        if (existingAccessory) {
+        // the accessory already exists
+          this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
+
+          // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
+          // existingAccessory.context.device = device;
+          // this.api.updatePlatformAccessories([existingAccessory]);
+
+          // create the accessory handler for the restored accessory
+          // this is imported from `platformAccessory.ts`
+          const thermo = new ThermostatAccessory(this, existingAccessory, thermostat);
+          this.thermostats.push(thermo);
         // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
         // remove platform accessories when no longer present
         // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
         // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
-      } else {
+        } else {
         // the accessory does not yet exist, so we need to create it
-        this.log.info('Adding new thermostat:', thermostat.Name);
+          this.log.info('Adding new thermostat:', thermostat.Name);
 
-        // create a new accessory
-        const accessory = new this.api.platformAccessory(thermostat.Name, uuid);
+          // create a new accessory
+          const accessory = new this.api.platformAccessory(thermostat.Name, uuid);
 
-        // store a copy of the device object in the `accessory.context`
-        // the `context` property can be used to store any data about the accessory you may need
-        accessory.context.device = thermostat;
+          // store a copy of the device object in the `accessory.context`
+          // the `context` property can be used to store any data about the accessory you may need
+          accessory.context.device = thermostat;
 
-        // create the accessory handler for the newly create accessory
-        // this is imported from `platformAccessory.ts`
-        let thermo = new ThermostatAccessory(this, accessory,thermostat);
-        this.thermostats.push(thermo)
-        // link the accessory to your platform
-        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+          // create the accessory handler for the newly create accessory
+          // this is imported from `platformAccessory.ts`
+          const thermo = new ThermostatAccessory(this, accessory, thermostat);
+          this.thermostats.push(thermo);
+          // link the accessory to your platform
+          this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+        }
       }
-      }
-  });
+    });
   }
 }

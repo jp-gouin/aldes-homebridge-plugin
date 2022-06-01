@@ -1,16 +1,16 @@
 {
-  "private": true,
+  "private": false,
   "displayName": "Aldes plugin",
-  "name": "homebridge-aldes",
-  "version": "1.0.0",
-  "description": "A short description about what your plugin does.",
+  "name": "@jpgouin-org/homebridge-aldes",
+  "version": "1.0.1",
+  "description": "Plugin for Aldes and T-One aqua air",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git://github.com/USERNAME/GITHUB_PROJECT_NAME.git"
+    "url": "git://github.com/jp-gouin/aldes-homebridge-plugin"
   },
   "bugs": {
-    "url": "https://github.com/USERNAME/GITHUB_PROJECT_NAME/issues"
+    "url": "https://github.com/jp-gouin/aldes-homebridge-plugin/issues"
   },
   "engines": {
     "node": ">=14.18.1",
@@ -18,7 +18,7 @@
   },
   "main": "dist/index.js",
   "scripts": {
-    "lint": "eslint src/**.ts --max-warnings=0",
+    "lint": "eslint src/**.ts --max-warnings=100",
     "watch": "npm run build && npm link && nodemon",
     "build": "rimraf ./dist && tsc",
     "prepublishOnly": "npm run lint && npm run build"
@@ -39,5 +39,8 @@
     "rimraf": "^3.0.2",
     "ts-node": "^10.3.0",
     "typescript": "^4.4.4"
-  }
+  },
+  "types": "./dist/index.d.ts",
+  "homepage": "https://github.com/jp-gouin/aldes-homebridge-plugin#readme",
+  "author": "Jean-Philippe Gouin"
 }

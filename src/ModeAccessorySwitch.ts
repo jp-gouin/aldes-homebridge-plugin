@@ -1,6 +1,6 @@
 import { PlatformAccessory } from 'homebridge';
 
-import { Thermostat, AldesAPI, Product, Mode } from './aldesApi'
+import { AldesAPI, Mode } from './aldesApi';
 import { AldesHomebridgePlatform } from './platform';
 
 export class ModeAccessorySwitch {
@@ -16,7 +16,7 @@ export class ModeAccessorySwitch {
   constructor(
     private readonly platform: AldesHomebridgePlatform,
     private readonly accessory: PlatformAccessory,
-    private readonly mode: Mode
+    private readonly mode: Mode,
   ) {
     this.log = platform.log;
     this.config = platform.config;
@@ -32,7 +32,7 @@ export class ModeAccessorySwitch {
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Aldes')
       .setCharacteristic(this.platform.Characteristic.Model, this.aldesAPI.getProducts()[0].reference)
       .setCharacteristic(this.platform.Characteristic.SerialNumber, this.aldesAPI.getProducts()[0].serial_number)
-      .setCharacteristic(this.platform.Characteristic.Name, mode.name)
+      .setCharacteristic(this.platform.Characteristic.Name, mode.name);
 
 
     // create a new Thermostat service
@@ -44,9 +44,9 @@ export class ModeAccessorySwitch {
       .onGet(this.handleOnGet.bind(this))
       .onSet(this.handleOnSet.bind(this));
 
-      setInterval(() => {
-        this.service.updateCharacteristic(this.Characteristic.On, this.handleOnGet());
-      }, 60000);
+    setInterval(() => {
+      this.service.updateCharacteristic(this.Characteristic.On, this.handleOnGet());
+    }, 60000);
   }
 
   /**
@@ -65,7 +65,7 @@ export class ModeAccessorySwitch {
     if (value) {
       this.aldesAPI.updateMode(this.mode.mode);
     } else {
-      this.aldesAPI.updateMode("A");
+      this.aldesAPI.updateMode('A');
     }
   }
 }
