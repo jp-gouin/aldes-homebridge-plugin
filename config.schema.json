@@ -1,0 +1,42 @@
+{
+  "pluginAlias": "AldesHomebridgePlugin",
+  "pluginType": "platform",
+  "singular": true,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "required": true,
+        "default": "Example Dynamic Platform"
+      },
+      "username": {
+        "title": "Username",
+        "type": "string",
+        "required": true,
+        "default": "Example Dynamic Platform"
+      },
+      "password": {
+        "title": "Password",
+        "type": "string",
+        "required": true,
+        "default": "Example Dynamic Platform"
+      },
+      "defaultHeatMode": {
+        "title": "default heat mode",
+        "type": "string",
+        "enum": ["B","C","D","E"],
+        "required": true,
+        "default": "heat mode use when heat is turned on"
+      },
+      "defaultColdMode": {
+        "title": "default cold mode",
+        "type": "string",
+        "enum": ["F","G","H","I"],
+        "required": true,
+        "default": "heat mode use when heat is turned on"
+      }
+    }
+  }
+}
