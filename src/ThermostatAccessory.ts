@@ -60,13 +60,41 @@ export class ThermostatAccessory {
           .onGet(this.handleTemperatureDisplayUnitsGet.bind(this))
           .onSet(this.handleTemperatureDisplayUnitsSet.bind(this));
 
-        setInterval(() => {
+
+        this.aldesAPI.getEvent().addListener("productChange", (products)=>{
+          this.handleRefreshThermostat(products);
+        });
+        this.aldesAPI.getEvent().addListener("modeChange", () => {
+          this.service.updateCharacteristic(this.Characteristic.CurrentHeatingCoolingState, this.handleCurrentHeatingCoolingStateGet());
+        });
+       /* this.aldesAPI.subscribeProductEvent((products)=>{
+          this.handleRefreshThermostat(products);
+        });
+        this.aldesAPI.subscribeModeEvent(()=>{
+          this.handleRefreshMode();
+        });*/
+
+       /* setInterval(() => {
           this.service.updateCharacteristic(this.Characteristic.CurrentHeatingCoolingState, this.handleCurrentHeatingCoolingStateGet());
           this.service.updateCharacteristic(this.Characteristic.CurrentTemperature, this.handleCurrentTemperatureGet());
-        }, 60000);
+        }, 60000);*/
 
   }
-
+  handleRefreshThermostat(products: Product[]){
+    this.platform.log.debug("Refresh triggered")
+    for (const thermostat of products[0].indicator.thermostats){
+      if(thermostat.ThermostatId == this.thermostat.ThermostatId){
+        if(thermostat.CurrentTemperature != this.thermostat.CurrentTemperature){
+          this.thermostat.CurrentTemperature = thermostat.CurrentTemperature ;
+          this.service.updateCharacteristic(this.Characteristic.CurrentTemperature, this.handleCurrentTemperatureGet());
+        }
+        if(thermostat.TemperatureSet != this.thermostat.TemperatureSet){
+          this.thermostat.TemperatureSet = thermostat.TemperatureSet;
+          this.service.updateCharacteristic(this.Characteristic.TargetTemperature, this.handleCurrentTemperatureGet());
+        }
+      }
+    }
+  }
   /**
      * Handle requests to get the current value of the "Current Heating Cooling State" characteristic
      */

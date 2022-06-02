@@ -1,4 +1,5 @@
 import { Logger, PlatformAccessory, PlatformConfig } from 'homebridge';
+import { EventEmitter } from 'events'
 import fetch from 'node-fetch';
 import { URLSearchParams } from 'url';
 
@@ -94,6 +95,7 @@ export type Product = {
 export class AldesAPI {
   public products: Array<Product> = [];
   private _token!: Token;
+  public aldesEvent = new EventEmitter();
   public get token(): Token {
     return this._token;
   }
@@ -105,7 +107,15 @@ export class AldesAPI {
   public getProducts(){
     return this.products;
   }
-
+  public getEvent(): EventEmitter {
+    return this.aldesEvent;
+  }
+  public subscribeProductEvent(callback){
+    this.aldesEvent.addListener('productChange', callback())
+  }
+  public subscribeModeEvent(callback){
+    this.aldesEvent.addListener('modeChange', callback());
+  }
   // this is used to track restored cached accessories
   public readonly accessories: PlatformAccessory[] = [];
 
@@ -156,7 +166,15 @@ export class AldesAPI {
     }else{
       // 👇️ const result: GetUsersResponse
       const result = (await response.json()) as Array<Product>;
+      if(this.products.length == 0 ){
+        this.products = result;
+      }
+      if(result[0].indicator.current_air_mode != this.products[0].indicator.current_air_mode){
+        this.products = result;
+        this.aldesEvent.emit("modeChange");
+      }
       this.products = result;
+      this.aldesEvent.emit("productChange", this.products)
       return this.products;
     }
   }

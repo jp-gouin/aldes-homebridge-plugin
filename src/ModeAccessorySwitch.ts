@@ -44,9 +44,16 @@ export class ModeAccessorySwitch {
       .onGet(this.handleOnGet.bind(this))
       .onSet(this.handleOnSet.bind(this));
 
-    setInterval(() => {
+    this.aldesAPI.getEvent().addListener("modeChange", () => {
       this.service.updateCharacteristic(this.Characteristic.On, this.handleOnGet());
-    }, 60000);
+    });
+    /*this.aldesAPI.subscribeModeEvent(()=>{
+      this.handleRefreshMode();
+    });*/
+
+    /*setInterval(() => {
+      this.service.updateCharacteristic(this.Characteristic.On, this.handleOnGet());
+    }, 60000);*/
   }
 
   /**

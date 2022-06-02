@@ -2,7 +2,7 @@
   "private": false,
   "displayName": "Aldes plugin",
   "name": "@jpgouin-org/homebridge-aldes",
-  "version": "1.0.1",
+  "version": "1.0.2-beta5",
   "description": "Plugin for Aldes and T-One aqua air",
   "license": "Apache-2.0",
   "repository": {
