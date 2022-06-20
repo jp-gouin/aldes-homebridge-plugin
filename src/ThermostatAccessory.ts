@@ -38,7 +38,7 @@ export class ThermostatAccessory {
         // this.service = this.accessory.getService(this.platform.Service.Thermostat);
         this.service = this.accessory.getService('Thermostat' + thermostat.Name) ||
         this.accessory.addService(this.platform.Service.Thermostat, 'Thermostat' + thermostat.Name);
-        this.service.getCharacteristic(this.platform.api.hap.Characteristic.TargetTemperature).setProps({ minValue: 16, maxValue: 24, minStep: 1 });
+        this.service.getCharacteristic(this.platform.api.hap.Characteristic.TargetTemperature).setProps({ minValue: 16, maxValue: 26, minStep: 0.5 });
         //this.service.getCharacteristic(this.platform.api.hap.Characteristic.CurrentHeatingCoolingState).setProps({ validValues: [1, 2] });
 
         // create handlers for required characteristics
